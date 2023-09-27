@@ -52,7 +52,8 @@ const script = ({src, name, mode}, done = _ => true) => {
         },
         resolve: {
             fallback: {
-                stream: require.resolve('stream-browserify')
+                stream: require.resolve('stream-browserify'),
+                buffer: require.resolve('buffer')
             }
         }
     };
