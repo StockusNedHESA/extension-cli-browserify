@@ -8,7 +8,7 @@ const webpack = require('webpack-stream');
 const sass = require('gulp-sass')(require('sass'));
 const Utilities = require('./utilities').Utilities;
 const argv = require('yargs').argv;
-const {prod: isProd, firefox: isFirefox, pkg: pkgPath, config} = argv;
+const { prod: isProd, firefox: isFirefox, pkg: pkgPath, config } = argv;
 
 /** helper method to ensure array type */
 const ensureArray = path => Array.isArray(path) ? path : [path];
@@ -38,18 +38,19 @@ if (customPaths) {
 
 const clean = () => del([paths.dist + '/*']);
 
-const script = ({src, name, mode}, done = _ => true) => {
+const script = ({ src, name, mode }, done = _ => true) => {
 
     const webpackOptions = {
         // use mode if specified explicitly; otherwise choose by --env
         mode: mode || (isProd ? 'production' : 'development'),
         // match sourcemap name with configured js file name
-        output: {filename: `${name}.js`},
+        output: { filename: `${name}.js` },
         // use source map with dev builds only
         devtool: isProd ? undefined : 'cheap-source-map',
         optimization: {
             minimize: true
         },
+        externals: [{ './jszip': 'jszip' }],
         resolve: {
             fallback: {
                 stream: require.resolve('stream-browserify'),
@@ -72,7 +73,7 @@ const script = ({src, name, mode}, done = _ => true) => {
         .on('end', done);
 };
 
-const style = ({src, name}, done = _ => true) => {
+const style = ({ src, name }, done = _ => true) => {
     return gulp.src(src)
         // convert to css
         .pipe(sass().on('error', sass.logError))
@@ -92,7 +93,7 @@ const style = ({src, name}, done = _ => true) => {
 const copy = (src, done = _ => true) => {
     // nested copy specified using glob pattern
     if (src.endsWith('*')) {
-        return gulp.src(src, {base: 'src'})
+        return gulp.src(src, { base: 'src' })
             .pipe(gulp.dest(paths.dist))
             .on('end', done);
     }
@@ -108,7 +109,7 @@ const copy = (src, done = _ => true) => {
 
 const locale = (language, done = _ => true) => {
     return gulp.src(paths.locales_dir + language + '/**/*.json')
-        .pipe(plugins.mergeJson({fileName: 'messages.json'}))
+        .pipe(plugins.mergeJson({ fileName: 'messages.json' }))
         .pipe(plugins.jsonminify())
         .pipe(gulp.dest(paths.dist + '/_locales/' + language))
         .on('end', done);
@@ -116,15 +117,15 @@ const locale = (language, done = _ => true) => {
 
 const copyManifest = done => {
 
-    const {version} = pkg;
+    const { version } = pkg;
 
     const performChange = (content) => {
         let mft = JSON.parse(content);
 
         mft.version = version; // use version from package
 
-        if (isFirefox && mft.firefox) mft = {...mft, ...mft.firefox};
-        else if (!isFirefox && mft.chrome) mft = {...mft, ...mft.chrome};
+        if (isFirefox && mft.firefox) mft = { ...mft, ...mft.firefox };
+        else if (!isFirefox && mft.chrome) mft = { ...mft, ...mft.chrome };
         delete mft.chrome;
         delete mft.firefox;
 
@@ -151,7 +152,7 @@ const copyAssets = done => {
 
 const buildHtml = done => {
     return gulp.src(paths.html)
-        .pipe(plugins.htmlmin({collapseWhitespace: true}))
+        .pipe(plugins.htmlmin({ collapseWhitespace: true }))
         .pipe(plugins.rename(path => {
             path.dirname = '';
         }))
