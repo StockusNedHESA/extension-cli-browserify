@@ -151,6 +151,7 @@ const copyAssets = done => {
 };
 
 const buildHtml = done => {
+    if (!paths.html) return done();
     return gulp.src(paths.html)
         .pipe(plugins.htmlmin({ collapseWhitespace: true }))
         .pipe(plugins.rename(path => {
